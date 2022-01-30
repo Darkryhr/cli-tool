@@ -9,6 +9,16 @@ import fs from 'fs';
 import kebabcase from 'lodash.kebabcase';
 
 let postDoc = {};
+const TAGS = [
+  'Frontend',
+  'Backend',
+  'Design',
+  'Fullstack',
+  'GraphQL',
+  'Docker',
+  'Algorithms',
+  'Data Structures',
+];
 
 const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
 
@@ -51,7 +61,7 @@ const postExcerpt = async () => {
 };
 
 const postDate = async () => {
-  const post = await inquirer
+  await inquirer
     .prompt({
       name: 'post_date',
       type: 'confirm',
@@ -61,6 +71,19 @@ const postDate = async () => {
       if (val.post_date) postDoc.post_date = new Date();
       else postDoc.post_date = '';
     });
+};
+
+const postTags = async () => {
+  await inquirer
+    .prompt({
+      name: 'post_tags',
+      type: 'checkbox',
+      message: 'Add tags?',
+      choices: TAGS,
+    })
+    .then((answers) =>
+      answers.post_tags.length ? (postDoc.post_tags = answers.post_tags) : ''
+    );
 };
 
 const runScript = async () => {
@@ -73,6 +96,8 @@ const runScript = async () => {
     await postTitle(),
     await postExcerpt(),
     await postDate(),
+    await postTags(),
+    console.log(postDoc.post_tags),
   ]).then(
     fs.appendFile(
       `${kebabcase(postDoc.doc_name)}.md`,
@@ -82,6 +107,7 @@ excerpt: '${postDoc.post_excerpt}'
 date: '${
         postDoc.post_date instanceof Date ? postDoc.post_date.toISOString() : ''
       }'
+tags: [${postDoc.post_tags}]
 ---`,
       async (err) => {
         const spinner = createSpinner('Creating File...').start();

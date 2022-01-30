@@ -97,7 +97,6 @@ const runScript = async () => {
     await postExcerpt(),
     await postDate(),
     await postTags(),
-    console.log(postDoc.post_tags),
   ]).then(
     fs.appendFile(
       `${kebabcase(postDoc.doc_name)}.md`,
@@ -106,8 +105,12 @@ title: '${postDoc.post_title}'
 excerpt: '${postDoc.post_excerpt}'
 date: '${
         postDoc.post_date instanceof Date ? postDoc.post_date.toISOString() : ''
-      }'
-tags: [${postDoc.post_tags}]
+      }'${
+        postDoc.post_tags
+          ? `
+tags: [${postDoc.post_tags}]`
+          : ''
+      }
 ---`,
       async (err) => {
         const spinner = createSpinner('Creating File...').start();
